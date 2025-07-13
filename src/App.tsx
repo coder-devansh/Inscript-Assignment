@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import './App.css';
 
-const App = () => {
-  const allColumns = [
+const App: React.FC = () => {
+  const allColumns: string[] = [
     "#", "ABC JOB REQUEST ⬍", "S", "STATUS", "SUBMITTER ⬍", "ASSIGNEE ⬍",
     "PRIORITY ⬍", "DUE DATE ⬍", "BUDGET ⬍", "EST.VALUE ⬍", "URL ⬍"
   ];
 
-  const [visibleCols, setVisibleCols] = useState(allColumns);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [viewMode, setViewMode] = useState('table');
-  const [filters, setFilters] = useState({});
-  const [filledRows, setFilledRows] = useState([
+  const [visibleCols, setVisibleCols] = useState<string[]>(allColumns);
+  const [sortConfig, setSortConfig] = useState<{ key: number | null; direction: 'asc' | 'desc' }>({ key: null, direction: 'asc' });
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [filters, setFilters] = useState<{ [key: number]: string }>({});
+  const [filledRows, setFilledRows] = useState<(React.ReactNode[])[]>([
     ["1", "Q3 Financial Overview", "S", <span className="status in-progress">In-progress</span>, "Asha Patel", "Sophie Choudhury", <span className="priority medium">Medium</span>, "20-11-2024", <span className="amount">₹6,200,000</span>, <span className="amount">₹5,800,000</span>, <a href="https://www.ashapatel.com" target="_blank" rel="noreferrer">www.ashapatel.com</a>],
     ["4", "Update news list for comp...", "S", <span className="status complete">Complete</span>, "Emily Green", "Tom Wright", <span className="priority low">Low</span>, "15-01-2025", <span className="amount">₹6,200,000</span>, <span className="amount">₹6,000,000</span>, <a href="https://www.emilygreen.com" target="_blank" rel="noreferrer">www.emilygreen.com</a>],
     ["2", "Launch marketing campaign...", "S", <span className="status need-to-start">Need to start</span>, "Irfan Khan", "Nisha Pandey", <span className="priority high">High</span>, "30-10-2024", <span className="amount">₹3,500,000</span>, <span className="amount">₹4,200,000</span>, <a href="https://www.irfankhan.com" target="_blank" rel="noreferrer">www.irfankhan.com</a>],
@@ -22,13 +22,13 @@ const App = () => {
 
   const blankRows = 17;
 
-  const toggleColumn = (col) => {
+  const toggleColumn = (col: string) => {
     setVisibleCols(prev =>
       prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]
     );
   };
 
-  const exportToJSON = (data) => {
+  const exportToJSON = (data: any) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -40,17 +40,24 @@ const App = () => {
     URL.revokeObjectURL(url);
   };
 
-  const importFromJSON = (callback) => {
+  const importFromJSON = (callback: (data: any[]) => void) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target?.files?.[0];
+      if (!file) return;
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = (event: ProgressEvent<FileReader>) => {
         try {
-          const json = JSON.parse(event.target.result);
-          callback(json);
+          const result = event.target?.result;
+          if (typeof result === 'string') {
+            const json = JSON.parse(result);
+            callback(json);
+          } else {
+            throw new Error('Invalid file content');
+          }
         } catch (err) {
           alert('Invalid JSON file.');
         }
@@ -62,6 +69,7 @@ const App = () => {
 
   const handleSort = () => {
     const col = prompt("Enter column to sort by (exact name):", "#");
+    if (!col) return;
     const index = allColumns.indexOf(col);
     if (index === -1) return alert("Invalid column name.");
     const newDirection = sortConfig.key === index && sortConfig.direction === 'asc' ? 'desc' : 'asc';
@@ -71,6 +79,7 @@ const App = () => {
   const handleFilter = () => {
     const col = prompt("Enter column to filter by (exact name):", "SUBMITTER ⬍");
     const keyword = prompt("Enter keyword to filter:", "");
+    if (!col || keyword == null) return;
     const index = allColumns.indexOf(col);
     if (index === -1) return alert("Invalid column name.");
     setFilters({ ...filters, [index]: keyword.toLowerCase() });
@@ -78,17 +87,19 @@ const App = () => {
 
   const handleExport = () => {
     const plainData = filledRows.map(row =>
-      row.map(cell => typeof cell === 'string' ? cell : (cell.props?.children || ''))
+      row.map(cell => typeof cell === 'string' ? cell : (React.isValidElement(cell) ? (cell.props?.children ?? "") : ""))
     );
     exportToJSON(plainData);
   };
 
   const handleImport = () => {
-    importFromJSON((data) => {
+    importFromJSON((data: any[][]) => {
       const reconstructed = data.map(row => row.map(cell => cell));
       setFilledRows(reconstructed);
     });
   };
+
+  // Rest of your render logic...
 
   return (
     <div className="app-container">
