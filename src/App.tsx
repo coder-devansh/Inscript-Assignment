@@ -87,7 +87,16 @@ const App: React.FC = () => {
 
   const handleExport = () => {
     const plainData = filledRows.map(row =>
-      row.map(cell => typeof cell === 'string' ? cell : (React.isValidElement(cell) ? (cell.props?.children ?? "") : ""))
+      row.map(cell => {
+        if (typeof cell === 'string') return cell;
+        if (React.isValidElement(cell)) {
+          const props = cell.props as { children?: React.ReactNode };
+          if (typeof props.children === 'string') return props.children;
+          if (Array.isArray(props.children)) return props.children.join('');
+          return '';
+        }
+        return '';
+      })
     );
     exportToJSON(plainData);
   };
@@ -98,8 +107,6 @@ const App: React.FC = () => {
       setFilledRows(reconstructed);
     });
   };
-
-  // Rest of your render logic...
 
   return (
     <div className="app-container">
