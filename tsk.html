@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html,body{
+            overflow:hidden;
+            margin:0;
+            padding:0;
+
+        }
+        .container{
+            position:relative;
+            width:100vw;
+            height:100vh;
+
+        }
+        .circle{
+            width:50px;
+            height:50px;
+            border-radius: 50%;
+            
+            position:absolute;
+        }
+        .controls{
+            position:fixed;
+            top:10px;
+            left:10px;
+            z-index:10;
+            display:flex;
+            gap:10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+         <div class="controls">
+        <button class= "undo"onClick="handleUndo()"  style="display:none;">undo</button>
+    <button class="redo" onClick="createCircle()">Redo</button>
+    <button class="reset" onClick="handleReset()">Reset</button>
+    </div>
+    </div>
+   
+    
+    <script>
+        function getRandomColor(){
+            const letters='0123456789ABCDEF'
+            let color="#";
+            for(let i=0;i<6;i++){
+                color+=letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+
+        }
+        const circles=[];
+        const createCircle=()=>{
+            const circle=document.createElement("div");
+            circle.className='circle';
+
+            const x=Math.random()*(window.innerWidth-50);
+            const y=Math.random()*(window.innerHeight-12);
+
+            circle.style.left=`${x}px`;
+            circle.style.right=`${y}px`;
+
+            circle.style.backgroundColor=getRandomColor();
+            document.querySelector('.container').appendChild(circle);
+            circles.push(circle);
+            updateVisibility();
+
+
+        }
+        function updateVisibility(){
+            const undoBtn=document.getElementsByClassName("undo")[0];
+            undoBtn.style.display=circles.length>0?"inline-block":"none";
+        }
+        const handleUndo=()=>{
+            const lastCircle=circles.pop();
+            if(lastCircle){
+                document.querySelector('.container').removeChild(lastCircle);
+                updateVisibility();
+            }
+
+        }
+        const handleReset=()=>{
+            while(circles.length>0){
+                const circle=circles.pop();
+                document.querySelector('.container').removeChild(circle);
+
+            }
+            updateVisibility();
+        }
+
+
+        </script>
+    
+</body>
+</html>
