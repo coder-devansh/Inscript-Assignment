@@ -95,10 +95,16 @@ const App = () => {
   return (
     <div>
       <header className="header">
-        <div className="breadcrumbs">Workspace &gt; Folder 5 &gt; <b>Spreadsheet 3</b></div>
+        
+        
+        <div className="breadcrumb-wrapper">
+          
+          <img src="https://c.animaapp.com/mclmkdkf288FZk/img/panel.svg" className="breadcrumb-icon"></img>
+    
+          <span className="breadcrumbs">Workspace &gt; Folder 5 &gt; <b>Spreadsheet 3</b></span></div>
         <div className="user-profile">
           <input type="text" placeholder="Search within sheet" />
-          <span className="notification">🔔</span>
+          <span className="notification"></span>
           <span className="username">John Doe</span>
           <span className="avatar">👤</span>
         </div>
@@ -106,11 +112,11 @@ const App = () => {
 
       <div className="toolbar">
         <div className="toolbar-left">
-          <button onClick={()=>{console.log("toolbar button clicked")}}>📎 Tool bar</button>
+          <button onClick={()=>{console.log("toolbar button clicked")}}><img src="https://c.animaapp.com/mclmkdkf288FZk/img/chevron-double.svg " className="toolbar-image"></img> Tool bar</button>
           <button onClick={() => {
             const col = prompt("Enter column title to hide/show:", "STATUS");
             if (col) toggleColumn(col);
-          }}><span>🙈</span> Hide Fields</button>
+          }}><span><img src="https://c.animaapp.com/mclmkdkf288FZk/img/eye.svg" className="toolbar-image"></img></span> Hide Fields</button>
           <button onClick={handleSort}>⇅ Sort</button>
           <button onClick={handleFilter}>🔍 Filter</button>
           
